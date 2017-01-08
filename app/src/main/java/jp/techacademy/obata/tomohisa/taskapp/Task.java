@@ -3,6 +3,7 @@ package jp.techacademy.obata.tomohisa.taskapp;
 import java.io.Serializable;
 import java.util.Date;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -57,6 +58,7 @@ public class Task extends RealmObject  implements Serializable {
     }
 
     public void setCategory(Category category){
+        //this.category = (category == null) ? null: Realm.getDefaultInstance().copyFromRealm(category);
         this.category = category;
     }
 }

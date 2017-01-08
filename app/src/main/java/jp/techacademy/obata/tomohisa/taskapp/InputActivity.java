@@ -34,7 +34,7 @@ public class InputActivity extends AppCompatActivity  {
     private Button mDateButton,mTimeButton;
     private EditText mTitleEdit,mContentEdit;
     private Spinner mSpinner1;
-    CategoryAdapter adapter;
+    private CategoryAdapter adapter;
     private Task mTask;
     private Realm mRealm;
     private RealmResults<Task> mTaskRealmResults;
@@ -85,9 +85,12 @@ public class InputActivity extends AppCompatActivity  {
         public void onClick(View v) {
             if(v.getId()==R.id.cancel_button){
                 finish();
-            }else {
+            } else if(v.getId()==R.id.done_button) {
                 addTask();
                 finish();
+            }else{
+                Intent intent = new Intent(InputActivity.this,CategoryActivity.class);
+                startActivity(intent);
             }
         }
     };
@@ -119,7 +122,7 @@ public class InputActivity extends AppCompatActivity  {
         //Realm
         mRealm = Realm.getDefaultInstance();
         mCategoryRealmResults = mRealm.where(Category.class).findAll();
-        mCategoryRealmResults.sort("categoryText", Sort.ASCENDING);
+        mCategoryRealmResults = mCategoryRealmResults.sort("categoryText", Sort.ASCENDING);
         mRealm.addChangeListener(mRealmListener);
 
         // UI部品の設定
@@ -129,6 +132,7 @@ public class InputActivity extends AppCompatActivity  {
         mTimeButton.setOnClickListener(mOnTimeClickListener);
         findViewById(R.id.done_button).setOnClickListener(mOnButtonClickListener);
         findViewById(R.id.cancel_button).setOnClickListener(mOnButtonClickListener);
+        findViewById(R.id.category_button).setOnClickListener(mOnButtonClickListener);
         mTitleEdit = (EditText)findViewById(R.id.title_edit_text);
         mContentEdit = (EditText)findViewById(R.id.content_edit_text);
         //mCategoryEdit = (EditText)findViewById(R.id.category_edit_text);
@@ -137,10 +141,22 @@ public class InputActivity extends AppCompatActivity  {
         mSpinner1.setOnItemSelectedListener(mSpinnerItemSelectedListener);
 
         adapter = new CategoryAdapter(this,android.R.layout.simple_spinner_item);
+        reloadSpinnerView();
         mSpinner1.setAdapter(adapter);
 
         Intent intent = getIntent();
-        mTask = (Task) intent.getSerializableExtra(MainActivity.EXTRA_TASK);
+        int intExtra = intent.getIntExtra(MainActivity.EXTRA_TASK,-1);
+        if(intExtra == -1){
+            mTask = null;
+        }else{
+            mTaskRealmResults = mRealm.where(Task.class).equalTo("id",intExtra).findAll();
+            mTask = new Task();
+            mTask.setId(mTaskRealmResults.get(0).getId());
+            mTask.setTitle(mTaskRealmResults.get(0).getTitle());
+            mTask.setContents(mTaskRealmResults.get(0).getContents());
+            mTask.setCategory(mTaskRealmResults.get(0).getCategory());
+            mTask.setDate(mTaskRealmResults.get(0).getDate());
+        }
 
         if (mTask == null) {
             // 新規作成の場合
@@ -175,7 +191,6 @@ public class InputActivity extends AppCompatActivity  {
             mDateButton.setText(dateString);
             mTimeButton.setText(timeString);
         }
-        reloadSpinnerView();
     }
 
     private void addTask() {
@@ -226,7 +241,7 @@ public class InputActivity extends AppCompatActivity  {
     }
 
     private void reloadSpinnerView(){
-
+        adapter.clear();
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         Category categoryNull = new Category();

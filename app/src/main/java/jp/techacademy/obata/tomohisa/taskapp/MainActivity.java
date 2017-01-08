@@ -25,14 +25,14 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener  {
-    public final static String EXTRA_TASK = "jp.techacademy.obata.tomohisa.taskapp.TASK";
+    public final static String EXTRA_TASK = "jp.techacademy.obata.tomohisa.taskapp.TASK.getId()";
 
     private Realm mRealm;
     private RealmResults<Task> mTaskRealmResults;
     private RealmChangeListener mRealmListener = new RealmChangeListener() {
         @Override
         public void onChange(Object element){
-            reloadListView();
+            reloadListView(null);
         }
     };
 
@@ -55,15 +55,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-        //Realmの設定
-        mRealm = Realm.getDefaultInstance();
-        mTaskRealmResults = mRealm.where(Task.class).findAll();
-        mTaskRealmResults.sort("date", Sort.DESCENDING);
-        mRealm.addChangeListener(mRealmListener);
-
         mListView = (ListView)findViewById(R.id.listView1);
         mSearchView = (SearchView)findViewById(R.id.searchView1);
         mTaskAdapter = new TaskAdapter(MainActivity.this);
+
+        reloadListView(null);
 
         //ListViewをタップした時の処理
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -73,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 Task task = (Task) parent.getAdapter().getItem(position);
 
                 Intent intent = new Intent(MainActivity.this, InputActivity.class);
-                intent.putExtra(EXTRA_TASK, task);
+                intent.putExtra(EXTRA_TASK, task.getId());
 
                 startActivity(intent);
             }
@@ -114,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                         alarmManager.cancel(resultPendingIntent);
 
-                        reloadListView();
+                        reloadListView(null);
                     }
                 });
                 builder.setNegativeButton("CANCEL", null);
@@ -130,11 +126,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             // アプリ起動時にタスクの数が0であった場合は表示テスト用のタスクを作成する
             addTaskForTest();
         }
-
-        reloadListView();
     }
 
-    private void reloadListView(){
+    private void reloadListView(String text){
+
+        //Realmの設定
+        mRealm = Realm.getDefaultInstance();
+        mTaskRealmResults = mRealm.where(Task.class).findAll();
+        mTaskRealmResults = mTaskRealmResults.sort("date", Sort.DESCENDING);
+        mRealm.addChangeListener(mRealmListener);
 
         ArrayList<Task> taskArrayList = new ArrayList<>();
 
@@ -148,7 +148,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             task.setCategory(mTaskRealmResults.get(i).getCategory());
             task.setDate(mTaskRealmResults.get(i).getDate());
 
-            taskArrayList.add(task);
+            if(text == null){
+                taskArrayList.add(task);
+            }else{
+                String str = task.getCategory().getCategory();
+                if(str.equals(text)){
+                    taskArrayList.add(task);
+                }
+            }
         }
 
         mTaskAdapter.setmTaskArrayList(taskArrayList);
@@ -172,18 +179,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     public boolean onQueryTextChange(String newText) {
-        if (TextUtils.isEmpty(newText)) {
-            mListView.clearTextFilter();
-            mTaskRealmResults = mRealm.where(Task.class).findAll();
-            mTaskRealmResults.sort("date", Sort.DESCENDING);
-            mRealm.addChangeListener(mRealmListener);
-        } else {
-            mListView.setFilterText(newText.toString());
-            mTaskRealmResults = mRealm.where(Task.class).equalTo("category",mListView.getTextFilter().toString()).findAll();
-            mTaskRealmResults.sort("date", Sort.DESCENDING);
-            mRealm.addChangeListener(mRealmListener);
+
+        if (newText.isEmpty()){
+            reloadListView(null);
+        }else {
+            reloadListView(newText);
         }
-        reloadListView();
         return true;
     }
 

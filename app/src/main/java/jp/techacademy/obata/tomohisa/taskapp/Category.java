@@ -3,6 +3,7 @@ package jp.techacademy.obata.tomohisa.taskapp;
 import java.io.Serializable;
 import java.util.Date;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 

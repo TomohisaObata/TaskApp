@@ -20,7 +20,7 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
         super(context, textViewResourceId,list);
     }
     /**
-     * @brief Spinerに表示するViewを取得します。
+     * Spinerに表示するViewを取得します。
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -29,7 +29,7 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
         return view;
     }
     /**
-     * @brief Spinerのドロップダウンアイテムに表示するViewを取得します。
+     * Spinerのドロップダウンアイテムに表示するViewを取得します。
      */
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
@@ -38,9 +38,7 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
         return view;
     }
     /**
-     * @brief keyに一致するインデックスを取得します。
-     * @param key
-     * @return
+     * keyに一致するインデックスを取得します。
      */
     public int getPosition(int key){
         int position = -1;
