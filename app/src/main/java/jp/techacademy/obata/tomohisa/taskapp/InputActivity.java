@@ -135,8 +135,6 @@ public class InputActivity extends AppCompatActivity  {
         findViewById(R.id.category_button).setOnClickListener(mOnButtonClickListener);
         mTitleEdit = (EditText)findViewById(R.id.title_edit_text);
         mContentEdit = (EditText)findViewById(R.id.content_edit_text);
-        //mCategoryEdit = (EditText)findViewById(R.id.category_edit_text);
-
         mSpinner1 = (Spinner)findViewById(R.id.spinner1);
         mSpinner1.setOnItemSelectedListener(mSpinnerItemSelectedListener);
 
@@ -242,12 +240,13 @@ public class InputActivity extends AppCompatActivity  {
 
     private void reloadSpinnerView(){
         adapter.clear();
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        Category categoryNull = new Category();
-        categoryNull.setId(-1);
-        categoryNull.setCategory("カテゴリ未登録");
-        adapter.add(categoryNull);
+        if (mCategoryRealmResults.size()==0){
+            Category categoryNull = new Category();
+            categoryNull.setId(-1);
+            categoryNull.setCategory("カテゴリ未登録");
+            adapter.add(categoryNull);
+        }
 
         for (int i = 0; i < mCategoryRealmResults.size(); i++) {
             if (!mCategoryRealmResults.get(i).isValid()) continue;
@@ -256,5 +255,6 @@ public class InputActivity extends AppCompatActivity  {
                 category.setCategory(mCategoryRealmResults.get(i).getCategory());
                 adapter.add(category);
         }
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     }
 }

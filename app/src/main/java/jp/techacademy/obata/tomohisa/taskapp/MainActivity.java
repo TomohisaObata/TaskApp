@@ -151,9 +151,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             if(text == null){
                 taskArrayList.add(task);
             }else{
-                String str = task.getCategory().getCategory();
-                if(str.equals(text)){
-                    taskArrayList.add(task);
+                Category category = task.getCategory();
+                if(category != null) {
+                    String str = category.getCategory();
+                    if (str.equals(text)) {
+                        taskArrayList.add(task);
+                    }
                 }
             }
         }
